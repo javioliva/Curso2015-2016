@@ -1,0 +1,212 @@
+1. Todas las clases
+
+select distinct ?Concept where {[] a ?Concept} LIMIT 100
+
+
+2. Subclases de la clase Establishment
+
+select distinct ?Subclases
+where
+{?x rdfs:subClassOf <http://GP-onto.fi.upm.es/exercise2#Establishment> .
+?x <http://www.w3.org/2000/01/rdf-schema#label> ?Subclases}
+
+
+3. Instancias de la clase City
+
+select distinct ?city
+where
+{?x <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://GP-onto.fi.upm.es/exercise2#City>.
+?x rdfs:label ?city}
+
+
+4. Número de habitantes de Santiago de Compostela
+
+select distinct ?x
+where
+{<http://GP-onto.fi.upm.es/exercise2#Santiago_de_Compostela> <http://GP-onto.fi.upm.es/exercise2#hasInhabitantNumber> ?x}
+
+
+5. Numero de habitantes de Santiago de Compostela y de Arzua
+
+select distinct ?x ?z
+where
+{
+<http://GP-onto.fi.upm.es/exercise2#Santiago_de_Compostela> <http://GP-onto.fi.upm.es/exercise2#hasInhabitantNumber> ?x .
+<http://GP-onto.fi.upm.es/exercise2#Arzua> <http://GP-onto.fi.upm.es/exercise2#hasInhabitantNumber> ?z}
+
+
+6. Lugares con número de habitantes, ordenar los resultados por el nombre del lugares
+
+select distinct ?z ?a
+where
+{?x <http://GP-onto.fi.upm.es/exercise2#hasInhabitantNumber> ?a .
+?x rdfs:label ?z.}
+ORDER BY ASC(?z)
+
+
+7. Todas las instancias de Locality con su número de habitantes (si existe)
+
+select distinct ?Ciudad ?Habitantes
+where
+{?z <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://GP-onto.fi.upm.es/exercise2#Locality>.
+ ?p ?a ?z .
+ ?p <http://www.w3.org/2000/01/rdf-schema#label> ?Ciudad.
+ OPTIONAL {?p <http://GP-onto.fi.upm.es/exercise2#hasInhabitantNumber> ?Habitantes}}
+ 
+ 
+8. Todos los lugares con más de 200.000 habitantes
+ 
+select distinct ?Ciudad ?Habitantes
+where
+{?z <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://GP-onto.fi.upm.es/exercise2#Locality>.
+ ?p ?a ?z .
+ ?p <http://www.w3.org/2000/01/rdf-schema#label> ?Ciudad.
+ ?p <http://GP-onto.fi.upm.es/exercise2#hasInhabitantNumber> ?Habitantes.
+FILTER (xsd:integer(?Habitantes) > xsd:integer("200000"))
+}
+
+
+9. Datos postales de Pazo_Breogan (calle, número, localidad, provincia)
+
+select distinct ?Calle ?Numero ?Localidad ?Provincia
+where
+{<http://GP-onto.fi.upm.es/exercise2#Pazo_Breogan> <http://GP-onto.fi.upm.es/exercise2#hasAddress> ?p.
+?p <http://GP-onto.fi.upm.es/exercise2#hasStreet> ?Calle.
+?p <http://GP-onto.fi.upm.es/exercise2#hasNumber> ?Numero.
+<http://GP-onto.fi.upm.es/exercise2#Pazo_Breogan> <http://GP-onto.fi.upm.es/exercise2#isPlacedIn> ?ze.
+?ze rdfs:label ?Localidad.
+?ze <http://GP-onto.fi.upm.es/exercise2#inProvince> ?Provincia
+}
+
+
+10. Subclases de la clase Location
+
+select distinct ?Subclases
+where
+{
+?p <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://GP-onto.fi.upm.es/exercise2#Location>.
+?p rdfs:label ?Subclases
+}
+
+
+11. Instancias de la clase Locality
+
+select distinct ?Instancias
+where
+{
+?p <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://GP-onto.fi.upm.es/exercise2#Locality>.
+?a ?z ?p.
+?a rdfs:label ?Instancias
+}
+
+
+12. Describir el recurso con rdfs:label "Madrid"
+
+DESCRIBE ?Ciudad
+where
+{
+?Ciudad rdfs:label "Madrid".
+}
+
+
+13. Construir el grafo RDF(S) que relaciona directamente todos los lugares turísticos con sus respectivas provincias, usando una nueva propiedad llamada "isIn"
+
+construct {?Sitio <http://GP-onto.fi.upm.es/exercise2#isIn> ?Provincia}
+where
+{
+?p ?q <http://GP-onto.fi.upm.es/exercise2#TouristicLocation>.
+?Sitio <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?p.
+?r <http://GP-onto.fi.upm.es/exercise2#isPlacedIn> ?w.
+?w <http://GP-onto.fi.upm.es/exercise2#inProvince> ?Provincia
+}
+
+
+
+14. Preguntar si hay alguna instancia de Town
+
+ASK {?Town <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://GP-onto.fi.upm.es/exercise2#Town>}
+
+
+
+ADVANCED
+
+
+1.
+
+select distinct ?Properties
+where
+{
+?Instances ?q <http://dbpedia.org/ontology/Politician> .
+?Instances ?Properties ?Valor
+}
+
+
+2. 
+
+select distinct?Properties
+where
+{
+?Instances ?q <http://dbpedia.org/ontology/Politician> .
+?Instances ?Properties ?Valor
+FILTER (?Properties != rdf:type)
+}
+
+3. 
+
+select count (distinct ?Valor) as ?Valores
+where
+{
+?Instances ?q <http://dbpedia.org/ontology/Politician> .
+?Instances ?Properties ?Valor
+FILTER (?Properties != rdf:type)
+}
+
+
+4.
+
+select ?Properties count (distinct ?Valor) as ?Valores
+where
+{
+?Instances ?q <http://dbpedia.org/ontology/Politician> .
+?Instances ?Properties ?Valor
+FILTER (?Properties != rdf:type)
+}
+
+
+
+
+5.
+
+select avg(?Valores) as ?media
+where
+{
+{
+select ?Properties count (distinct ?Valor) as ?Valores
+where
+{
+?Instances ?q <http://dbpedia.org/ontology/Politician> .
+?Instances ?Properties ?Valor
+FILTER (?Properties != rdf:type)
+}
+}
+}
+
+
+
+6.
+
+select ?Properties max(?Valores) as ?Fin
+where
+{
+{
+select ?Properties count (distinct ?Valor) as ?Valores
+where
+{
+?Instances ?q <http://dbpedia.org/ontology/Politician> .
+?Instances ?Properties ?Valor
+FILTER (?Properties != rdf:type)
+}
+}
+}
+
+ORDER BY DESC(?Fin)
